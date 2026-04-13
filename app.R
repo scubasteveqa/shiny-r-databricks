@@ -100,7 +100,15 @@ server <- function(input, output, session) {
 
       client <- connectapi::connect()
       credentials <- connectapi::get_oauth_credentials(client, session_token)
+      message("Credential exchange response keys: ", paste(names(credentials), collapse = ", "))
+      message("access_token length: ", nchar(credentials$access_token %||% ""))
+      message("token_type: ", credentials$token_type %||% "NULL")
       access_token <- credentials$access_token
+
+      if (is.null(access_token) || nchar(access_token) == 0) {
+        showNotification("Credential exchange returned no access_token", type = "error")
+        return()
+      }
 
       df <- fetch_data(access_token)
       names(df) <- tolower(names(df))
