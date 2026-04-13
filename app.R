@@ -13,11 +13,10 @@ library(DT)
 fetch_data <- function(access_token) {
   conn <- dbConnect(
     odbc::databricks(),
-    Host = Sys.getenv("DATABRICKS_HOST"),
-    HTTPPath = Sys.getenv("DATABRICKS_HTTP_PATH"),
-    AuthMech = 11,
-    Auth_Flow = 0,
-    Auth_AccessToken = access_token
+    httpPath = Sys.getenv("DATABRICKS_HTTP_PATH"),
+    authMech = 11,
+    authFlow = 0,
+    authAccessToken = access_token
   )
   on.exit(dbDisconnect(conn))
 
