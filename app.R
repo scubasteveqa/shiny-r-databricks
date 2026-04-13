@@ -14,19 +14,21 @@ fetch_data <- function(access_token) {
   host <- Sys.getenv("DATABRICKS_HOST")
   http_path <- Sys.getenv("DATABRICKS_HTTP_PATH")
 
+  # Log available ODBC drivers to find the right one
+  drivers <- odbc::odbcListDrivers()
+  message("Available ODBC drivers: ", paste(drivers$name, collapse = ", "))
+
   conn <- dbConnect(
     odbc::odbc(),
-    .connection_string = paste0(
-      "Driver=/opt/simba/spark/lib/64/libsparkodbc_sb64.so;",
-      "Host=", host, ";",
-      "Port=443;",
-      "HTTPPath=", http_path, ";",
-      "SSL=1;",
-      "ThriftTransport=2;",
-      "AuthMech=11;",
-      "Auth_Flow=0;",
-      "Auth_AccessToken=", access_token
-    )
+    driver = "Databricks",
+    Host = host,
+    Port = 443,
+    HTTPPath = http_path,
+    SSL = 1,
+    ThriftTransport = 2,
+    AuthMech = 11,
+    Auth_Flow = 0,
+    Auth_AccessToken = access_token
   )
   on.exit(dbDisconnect(conn))
 
