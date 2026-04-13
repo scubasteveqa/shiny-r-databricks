@@ -11,18 +11,24 @@ library(DT)
 # ── Data helpers ──────────────────────────────────────────────────────────────
 
 fetch_data <- function(access_token) {
-  old_token <- Sys.getenv("DATABRICKS_TOKEN")
-  Sys.setenv(DATABRICKS_TOKEN = access_token)
-  on.exit({
-    if (nchar(old_token) > 0) Sys.setenv(DATABRICKS_TOKEN = old_token)
-    else Sys.unsetenv("DATABRICKS_TOKEN")
-  })
+  host <- Sys.getenv("DATABRICKS_HOST")
+  http_path <- Sys.getenv("DATABRICKS_HTTP_PATH")
 
   conn <- dbConnect(
-    odbc::databricks(),
-    httpPath = Sys.getenv("DATABRICKS_HTTP_PATH")
+    odbc::odbc(),
+    .connection_string = paste0(
+      "Driver=/opt/simba/spark/lib/64/libsparkodbc_sb64.so;",
+      "Host=", host, ";",
+      "Port=443;",
+      "HTTPPath=", http_path, ";",
+      "SSL=1;",
+      "ThriftTransport=2;",
+      "AuthMech=11;",
+      "Auth_Flow=0;",
+      "Auth_AccessToken=", access_token
+    )
   )
-  on.exit(dbDisconnect(conn), add = TRUE)
+  on.exit(dbDisconnect(conn))
 
   dbGetQuery(conn, "
     SELECT
