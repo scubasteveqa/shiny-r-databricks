@@ -11,12 +11,18 @@ library(DT)
 # ── Data helpers ──────────────────────────────────────────────────────────────
 
 fetch_data <- function(access_token) {
+  old_token <- Sys.getenv("DATABRICKS_TOKEN")
+  Sys.setenv(DATABRICKS_TOKEN = access_token)
+  on.exit({
+    if (nchar(old_token) > 0) Sys.setenv(DATABRICKS_TOKEN = old_token)
+    else Sys.unsetenv("DATABRICKS_TOKEN")
+  })
+
   conn <- dbConnect(
     odbc::databricks(),
-    httpPath = Sys.getenv("DATABRICKS_HTTP_PATH"),
-    token = access_token
+    httpPath = Sys.getenv("DATABRICKS_HTTP_PATH")
   )
-  on.exit(dbDisconnect(conn))
+  on.exit(dbDisconnect(conn), add = TRUE)
 
   dbGetQuery(conn, "
     SELECT
