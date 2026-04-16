@@ -11,7 +11,7 @@ library(DT)
 # ── Data helpers ──────────────────────────────────────────────────────────────
 
 fetch_data <- function(access_token) {
-  host <- Sys.getenv("DATABRICKS_HOST")
+  host <- sub("https://", "", Sys.getenv("DATABRICKS_HOST"), fixed = TRUE)
   http_path <- Sys.getenv("DATABRICKS_HTTP_PATH")
 
   conn <- dbConnect(
